@@ -6,7 +6,7 @@ import pandas as pd
 app = Flask(__name__)
 CORS(app)
 
-model = joblib.load('model/randomForest_bestFeatures.joblib')
+model = joblib.load('model/rf_bests.joblib')
 
 @app.route('/predict', methods=['POST'])
 def predict():
