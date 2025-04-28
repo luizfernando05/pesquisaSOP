@@ -54,7 +54,7 @@ class SinginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     SvgPicture.asset(
                       'assets/ilustration/img-singin-profile.svg',
                       height: 160,
@@ -204,7 +204,9 @@ class SinginScreen extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/login');
+                          },
                           child: Text(
                             'Faça login',
                             style: TextStyle(
