@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-           Image.asset('assets/ilustration/Logo.png'),
+          Image.asset('assets/ilustration/Logo.png'),
           Image.asset('assets/ilustration/Mulher.png'),
 
           /*Container(
