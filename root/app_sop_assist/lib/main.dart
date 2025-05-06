@@ -1,5 +1,6 @@
 import 'package:app_sop_assist/ui/home/home_screen.dart';
 import 'package:app_sop_assist/ui/login/login_screen.dart';
+import 'package:app_sop_assist/ui/prediction/prediction_screen.dart';
 import 'package:app_sop_assist/ui/singin/singin_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/singin': (context) => const SinginScreen(),
+        '/prediction': (context) => const PredictionScreen(),
       },
     );
   }
