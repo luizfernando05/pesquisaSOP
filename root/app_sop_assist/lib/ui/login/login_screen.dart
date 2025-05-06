@@ -3,8 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreen();
+}
+
+class _LoginScreen extends State<LoginScreen> {
+  var showPassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -88,35 +95,47 @@ class LoginScreen extends StatelessWidget {
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Senha',
-                        labelStyle: GoogleFonts.roboto(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xFF646464),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFE0E0E0),
-                            width: 1,
+
+                    StatefulBuilder(
+                      builder: (context, setState) {
+                        return TextFormField(
+                          obscureText: !showPassword,
+                          decoration: InputDecoration(
+                            labelText: 'Senha',
+                            labelStyle: GoogleFonts.roboto(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: Color(0xFF646464),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Color(0xFFE0E0E0),
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Color(0xFFAB4ABA),
+                                width: 1,
+                              ),
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  showPassword = !showPassword;
+                                });
+                              },
+                              icon: Icon(
+                                showPassword
+                                    ? PhosphorIconsRegular.eye
+                                    : PhosphorIconsRegular.eyeClosed,
+                              ),
+                            ),
                           ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFAB4ABA),
-                            width: 1,
-                          ),
-                        ),
-                        suffixIcon: Icon(
-                          PhosphorIconsRegular.eyeClosed,
-                          size: 16,
-                          color: Color(0xFF646464),
-                        ),
-                      ),
-                      obscureText: true,
+                        );
+                      },
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -145,7 +164,7 @@ class LoginScreen extends StatelessWidget {
                       height: 48,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/singin');
+                          Navigator.pushNamed(context, '/prediction');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFFAB4ABA),

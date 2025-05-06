@@ -4,8 +4,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class SinginScreen extends StatelessWidget {
+class SinginScreen extends StatefulWidget {
   const SinginScreen({super.key});
+
+  @override
+  State<SinginScreen> createState() => _SinginScreenState();
+}
+
+class _SinginScreenState extends State<SinginScreen> {
+  var showPassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -112,35 +119,46 @@ class SinginScreen extends StatelessWidget {
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Senha',
-                        labelStyle: GoogleFonts.roboto(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xFF646464),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFE0E0E0),
-                            width: 1,
+                    StatefulBuilder(
+                      builder: (context, setState) {
+                        return TextFormField(
+                          obscureText: !showPassword,
+                          decoration: InputDecoration(
+                            labelText: 'Senha',
+                            labelStyle: GoogleFonts.roboto(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: Color(0xFF646464),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Color(0xFFE0E0E0),
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Color(0xFFAB4ABA),
+                                width: 1,
+                              ),
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  showPassword = !showPassword;
+                                });
+                              },
+                              icon: Icon(
+                                showPassword
+                                    ? PhosphorIconsRegular.eye
+                                    : PhosphorIconsRegular.eyeClosed,
+                              ),
+                            ),
                           ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFAB4ABA),
-                            width: 1,
-                          ),
-                        ),
-                        suffixIcon: Icon(
-                          PhosphorIconsRegular.eyeClosed,
-                          size: 16,
-                          color: Color(0xFF646464),
-                        ),
-                      ),
-                      obscureText: true,
+                        );
+                      },
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -174,7 +192,9 @@ class SinginScreen extends StatelessWidget {
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/prediction");
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFFAB4ABA),
                           shape: RoundedRectangleBorder(
