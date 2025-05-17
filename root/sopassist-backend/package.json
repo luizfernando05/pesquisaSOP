@@ -5,11 +5,20 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node-dev --respawn src/index.ts",
+    "run": "ts-node-dev --respawn src/index.ts",
     "dev": "npm run services:up && nodemon --require tsconfig-paths/register --exec ts-node ./src/index.ts",
     "services:up": "docker-compose -f docker-compose.yml up -d",
     "services:stop": "docker-compose -f docker-compose.yml  stop",
-    "services:down": "docker-compose -f docker-compose.yml down"
+    "services:down": "docker-compose -f docker-compose.yml down",
+    "lint": "eslint src/**/*.{ts,js}",
+    "lint:fix": "eslint src/**/*.{ts,js} --fix",
+    "format": "prettier --write src/**/*.{ts,js,json}",
+    "start": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/server.ts",
+    "typeorm-cli": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:create": "npm run typeorm-cli migration:create",
+    "migration:generate": "npm run typeorm-cli migration:generate",
+    "migration:run": "npm run typeorm-cli -- -d ./src/config/data-source.ts migration:run",
+    "migration:revert": "npm run typeorm-cli -- -d ./src/config/data-source.ts migration:revert"
   },
   "keywords": [],
   "author": "",
