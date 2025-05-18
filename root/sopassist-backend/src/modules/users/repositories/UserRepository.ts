@@ -10,12 +10,12 @@ export class UserRepository implements IUserRepository {
     this.ormRepository = AppDataSource.getRepository(User);
   }
 
-  create(user: User): Promise<User> {
+  async create(user: User): Promise<User> {
     const createUser = this.ormRepository.create(user);
     return this.ormRepository.save(createUser);
   }
 
-  findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     return this.ormRepository.findOne({ where: { email } });
   }
 }
