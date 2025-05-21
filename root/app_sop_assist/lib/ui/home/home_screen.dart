@@ -7,24 +7,16 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFAB4ABA),
-      body: Stack(// uma coisa em cima da outra
+      body: Stack(
+        // uma coisa em cima da outra
         children: [
           Column(
             children: [
-              const SizedBox(height: 40), 
-              Image.asset(
-                'assets/logo/logo.png',
-                width: 100,
-                height: 100,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 10),
               Center(
                 child: Image.asset(
                   'assets/ilustration/Mulher.png',
-                  width: 215,
-                  height: 275,
-                  fit: BoxFit.contain,
+                  width: MediaQuery.of(context).size.width * .5,
+                  height: MediaQuery.of(context).size.height * .5,
                 ),
               ),
             ],
@@ -35,17 +27,21 @@ class HomeScreen extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
+
             child: Container(
-              height: 395,
+              height: MediaQuery.of(context).size.height * .6,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.elliptical(3000, 2000), // Aqui é o ajuste da curvatura
+                  top: Radius.elliptical(
+                    3000,
+                    2000,
+                  ), // Aqui é o ajuste da curvatura
                 ),
               ),
               child: Column(
                 children: [
-                  const SizedBox(height: 70),
+                  SizedBox(height: MediaQuery.of(context).size.height * .07),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,12 +62,14 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 25),
+                  SizedBox(height: MediaQuery.of(context).size.width * .1),
+
                   SizedBox(
-                    width: 246,
-                    height: 40,
+                    width: MediaQuery.of(context).size.width * .63,
+                    height: MediaQuery.of(context).size.height * .06,
                     child: ElevatedButton(
-                      onPressed: () { //rota para a tela de criar conta
+                      onPressed: () {
+                        //rota para a tela de criar conta
                         Navigator.pushNamed(context, '/singin');
                       },
                       style: ElevatedButton.styleFrom(
@@ -86,14 +84,21 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
+
+                  SizedBox(height: MediaQuery.of(context).size.width * .03),
+
                   SizedBox(
-                    width: 246,
-                    height: 40,
+                    width: MediaQuery.of(context).size.width * .63,
+                    height: MediaQuery.of(context).size.height * .06,
                     child: OutlinedButton(
-                      onPressed: () => {//rota para a tela de login
-                        Navigator.pushNamed(context, '/login') //tela ainda a ser feita
-                      },
+                      onPressed:
+                          () => {
+                            //rota para a tela de login
+                            Navigator.pushNamed(
+                              context,
+                              '/login',
+                            ), //tela ainda a ser feita
+                          },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
                           color: Color(0xFFE0E0E0),
@@ -111,6 +116,15 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * .02,
+                  ),
+                  Image.asset(
+                    'assets/logo/logo.png',
+                    width: MediaQuery.of(context).size.width * .3,
+                    height: MediaQuery.of(context).size.height * .2,
                   ),
                 ],
               ),
