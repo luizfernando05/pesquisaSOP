@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
                 child: Image.asset(
                   'assets/ilustration/Mulher.png',
                   width: MediaQuery.of(context).size.width * .5,
-                  height: MediaQuery.of(context).size.height * .5,
+                  height: MediaQuery.of(context).size.height * .55,
                 ),
               ),
             ],
