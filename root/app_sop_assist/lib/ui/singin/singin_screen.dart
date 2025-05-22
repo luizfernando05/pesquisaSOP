@@ -13,6 +13,7 @@ class SinginScreen extends StatefulWidget {
 
 class _SinginScreenState extends State<SinginScreen> {
   var showPassword = false;
+  bool? isChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class _SinginScreenState extends State<SinginScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: 100,
+            top: MediaQuery.of(context).size.height * .15,
             left: 0,
             right: 0,
             bottom: 0,
@@ -61,13 +62,13 @@ class _SinginScreenState extends State<SinginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: MediaQuery.of(context).size.height * .02),
                     SvgPicture.asset(
                       'assets/ilustration/img-singin-profile.svg',
                       height: 160,
                       width: 160,
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: MediaQuery.of(context).size.height * .02),
                     TextField(
                       decoration: InputDecoration(
                         labelText: 'Nome',
@@ -163,6 +164,15 @@ class _SinginScreenState extends State<SinginScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
+                        Checkbox(
+                          value: isChecked,
+                          activeColor: Color(0xFFAB4ABA),
+                          onChanged: (newBool) {
+                            setState(() {
+                              isChecked = newBool;
+                            });
+                          },
+                        ),
                         Expanded(
                           child: RichText(
                             text: TextSpan(

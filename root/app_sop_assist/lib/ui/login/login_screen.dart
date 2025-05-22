@@ -20,11 +20,12 @@ class _LoginScreen extends State<LoginScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: 100,
+            top: MediaQuery.of(context).size.height * .15,
             left: 0,
             right: 0,
             bottom: 0,
             child: Container(
+              //height: MediaQuery.of(context).size.height * .5,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
               decoration: const BoxDecoration(
                 color: Color(0xFFFCFCFC),
@@ -66,7 +67,7 @@ class _LoginScreen extends State<LoginScreen> {
                       height: 160,
                       width: 160,
                     ),
-                    const SizedBox(height: 40),
+                  
 
                     const SizedBox(height: 16),
                     TextField(
@@ -158,7 +159,7 @@ class _LoginScreen extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: MediaQuery.of(context).size.height * .03),
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -239,7 +240,7 @@ class _LoginScreen extends State<LoginScreen> {
                       },
                     ),
                     Text(
-                      'Entrar',
+                      'Voltar',
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         color: Color(0xFFFEFCFF),
