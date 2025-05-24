@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:app_sop_assist/ui/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SinginScreen extends StatefulWidget {
   const SinginScreen({super.key});
@@ -14,6 +18,46 @@ class SinginScreen extends StatefulWidget {
 class _SinginScreenState extends State<SinginScreen> {
   var showPassword = false;
   bool? isChecked = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _registerUser() async {
+    final url = Uri.parse('http://10.0.2.2:3000/user/');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'state': _stateController.text,
+        'password': _passwordController.text,
+      }),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print("Usuário criado com sucesso");
+      Navigator.pushNamed(context, "/prediction");
+    } else {
+      print("Erro ao criar usuário: ${response.body}");
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text("Erro"),
+              content: Text("Não foi possível criar a conta."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +114,7 @@ class _SinginScreenState extends State<SinginScreen> {
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * .02),
                     TextField(
+                      controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'Nome',
                         labelStyle: GoogleFonts.roboto(
@@ -95,6 +140,33 @@ class _SinginScreenState extends State<SinginScreen> {
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      controller: _stateController,
+                      decoration: InputDecoration(
+                        labelText: 'Estado',
+                        labelStyle: GoogleFonts.roboto(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Color(0xFF646464),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Color(0xFFE0E0E0),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Color(0xFFAB4ABA),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
                         labelStyle: GoogleFonts.roboto(
@@ -123,6 +195,7 @@ class _SinginScreenState extends State<SinginScreen> {
                     StatefulBuilder(
                       builder: (context, setState) {
                         return TextFormField(
+                          controller: _passwordController,
                           obscureText: !showPassword,
                           decoration: InputDecoration(
                             labelText: 'Senha',
@@ -202,9 +275,7 @@ class _SinginScreenState extends State<SinginScreen> {
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/prediction");
-                        },
+                        onPressed: _registerUser,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFFAB4ABA),
                           shape: RoundedRectangleBorder(
