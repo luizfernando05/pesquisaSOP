@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:app_sop_assist/ui/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,43 +17,61 @@ class SinginScreen extends StatefulWidget {
 class _SinginScreenState extends State<SinginScreen> {
   var showPassword = false;
   bool? isChecked = false;
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  Map<String, String> errors = {};
+
   Future<void> _registerUser() async {
+    setState(() {
+      errors.clear();
+    });
+
     final url = Uri.parse('http://10.0.2.2:3000/user/');
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': _nameController.text,
-        'email': _emailController.text,
-        'state': _stateController.text,
-        'password': _passwordController.text,
-      }),
-    );
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'state': _stateController.text,
+          'password': _passwordController.text,
+        }),
+      );
 
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      print("Usuário criado com sucesso");
-      Navigator.pushNamed(context, "/prediction");
-    } else {
-      print("Erro ao criar usuário: ${response.body}");
-      showDialog(
-        context: context,
-        builder:
-            (_) => AlertDialog(
-              title: Text("Erro"),
-              content: Text("Não foi possível criar a conta."),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("OK"),
-                ),
-              ],
+      if (!mounted) return;
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        Navigator.pushNamed(context, "/prediction");
+      } else {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+        if (responseBody.containsKey('errors')) {
+          final Map<String, dynamic> backendErrors = responseBody['errors'];
+          if (!mounted) return;
+          setState(() {
+            backendErrors.forEach((key, value) {
+              errors[key] = value.toString();
+            });
+          });
+        } else {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erro ao criar conta. Tente novamente.'),
             ),
+          );
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro de rede. Tente novamente.')),
       );
     }
   }
@@ -138,6 +155,14 @@ class _SinginScreenState extends State<SinginScreen> {
                         ),
                       ),
                     ),
+                    if (errors.containsKey('name'))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          errors['name']!,
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _stateController,
@@ -164,6 +189,14 @@ class _SinginScreenState extends State<SinginScreen> {
                         ),
                       ),
                     ),
+                    if (errors.containsKey('state'))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          errors['state']!,
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _emailController,
@@ -191,6 +224,14 @@ class _SinginScreenState extends State<SinginScreen> {
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
+                    if (errors.containsKey('email'))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          errors['email']!,
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     StatefulBuilder(
                       builder: (context, setState) {
@@ -234,6 +275,14 @@ class _SinginScreenState extends State<SinginScreen> {
                         );
                       },
                     ),
+                    if (errors.containsKey('password'))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          errors['password']!,
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     Row(
                       children: [
