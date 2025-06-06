@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import MedicalData from './MedicalData';
 
 @Entity('users')
 export class User {
@@ -22,6 +24,9 @@ export class User {
 
   @Column({ type: 'varchar', nullable: false })
   password: string;
+
+  @OneToMany(() => MedicalData, (medicalData) => medicalData.patient)
+  medicalData: MedicalData[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

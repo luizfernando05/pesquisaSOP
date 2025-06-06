@@ -79,12 +79,6 @@ export class CreateMedicalDataTable1749139828661 implements MigrationInterface {
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },
-          {
-            name: 'updated_at',
-            type: 'timestamp',
-            default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
-          },
         ],
       })
     );
