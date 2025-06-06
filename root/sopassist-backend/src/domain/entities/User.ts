@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import MedicalData from './MedicalData';
+import Prediction from './Prediction';
 
 @Entity('users')
 export class User {
@@ -27,6 +28,9 @@ export class User {
 
   @OneToMany(() => MedicalData, (medicalData) => medicalData.patient)
   medicalData: MedicalData[];
+
+  @OneToMany(() => Prediction, (prediction) => prediction.patient)
+  prediction: Prediction[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
