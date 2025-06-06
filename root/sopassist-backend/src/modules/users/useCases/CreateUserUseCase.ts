@@ -1,4 +1,4 @@
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 import User from '../../../domain/entities/User';
 import { AppError } from '../../shared/errors/AppError';
 import { CreateUserDTO } from '../dtos/CreateUserDTO';
