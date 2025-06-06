@@ -20,7 +20,7 @@ export class LoginUserController {
 
       const token = await loginUserUseCase.execute({ email, password });
 
-      return res.status(200).json(token);
+      return res.status(200).json({ token });
     } catch (err) {
       if (handleValidationError(err, next)) return;
       next(err);
