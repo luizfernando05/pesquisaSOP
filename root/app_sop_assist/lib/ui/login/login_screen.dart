@@ -2,6 +2,9 @@ import 'package:app_sop_assist/ui/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +15,57 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreen extends State<LoginScreen> {
   var showPassword = false;
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final storage = FlutterSecureStorage();
+
+  Future<void> _login(BuildContext context) async {
+    final url = Uri.parse('http://10.0.2.2:3000/user/login');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text.trim(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+
+        await storage.write(key: 'jwt_token', value: token);
+
+        Navigator.pushNamed(context, '/prediction');
+      } else {
+        final error = jsonDecode(response.body)['message'];
+        _showErrorDialog(context, 'Erro: $error');
+      }
+    } catch (e) {
+      _showErrorDialog(context, 'Erro na conexão: $e');
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Erro'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +121,10 @@ class _LoginScreen extends State<LoginScreen> {
                       height: 160,
                       width: 160,
                     ),
-                  
 
                     const SizedBox(height: 16),
                     TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
                         labelStyle: GoogleFonts.roboto(
@@ -100,6 +154,7 @@ class _LoginScreen extends State<LoginScreen> {
                     StatefulBuilder(
                       builder: (context, setState) {
                         return TextFormField(
+                          controller: _passwordController,
                           obscureText: !showPassword,
                           decoration: InputDecoration(
                             labelText: 'Senha',
@@ -164,9 +219,7 @@ class _LoginScreen extends State<LoginScreen> {
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/prediction');
-                        },
+                        onPressed: () => _login(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFFAB4ABA),
                           shape: RoundedRectangleBorder(
