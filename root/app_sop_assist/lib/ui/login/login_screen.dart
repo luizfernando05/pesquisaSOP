@@ -22,16 +22,26 @@ class _LoginScreen extends State<LoginScreen> {
   final storage = FlutterSecureStorage();
 
   Future<void> _login(BuildContext context) async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Preencha todos os campos'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final url = Uri.parse('http://10.0.2.2:3000/user/login');
 
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': _emailController.text.trim(),
-          'password': _passwordController.text.trim(),
-        }),
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
       if (response.statusCode == 200) {
@@ -39,32 +49,32 @@ class _LoginScreen extends State<LoginScreen> {
         final token = data['token'];
 
         await storage.write(key: 'jwt_token', value: token);
-
         Navigator.pushNamed(context, '/prediction');
       } else {
-        final error = jsonDecode(response.body)['message'];
-        _showErrorDialog(context, 'Erro: $error');
+        final error = jsonDecode(response.body);
+        String message = 'Erro desconhecido';
+
+        if (error is Map) {
+          if (error.containsKey('errors') && error['errors'] is Map) {
+            final errors = error['errors'] as Map;
+            message = errors.values.join('\n');
+          } else if (error.containsKey('messages')) {
+            message = error['messages'];
+          }
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
       }
     } catch (e) {
-      _showErrorDialog(context, 'Erro na conexão: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro na conexão: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Erro'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-    );
   }
 
   @override
@@ -79,7 +89,6 @@ class _LoginScreen extends State<LoginScreen> {
             right: 0,
             bottom: 0,
             child: Container(
-              //height: MediaQuery.of(context).size.height * .5,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
               decoration: const BoxDecoration(
                 color: Color(0xFFFCFCFC),
@@ -121,7 +130,6 @@ class _LoginScreen extends State<LoginScreen> {
                       height: 160,
                       width: 160,
                     ),
-
                     const SizedBox(height: 16),
                     TextField(
                       controller: _emailController,
@@ -134,23 +142,16 @@ class _LoginScreen extends State<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFE0E0E0),
-                            width: 1,
-                          ),
+                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFAB4ABA),
-                            width: 1,
-                          ),
+                          borderSide: BorderSide(color: Color(0xFFAB4ABA)),
                         ),
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
-
                     StatefulBuilder(
                       builder: (context, setState) {
                         return TextFormField(
@@ -165,17 +166,11 @@ class _LoginScreen extends State<LoginScreen> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Color(0xFFE0E0E0),
-                                width: 1,
-                              ),
+                              borderSide: BorderSide(color: Color(0xFFE0E0E0)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Color(0xFFAB4ABA),
-                                width: 1,
-                              ),
+                              borderSide: BorderSide(color: Color(0xFFAB4ABA)),
                             ),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -194,25 +189,16 @@ class _LoginScreen extends State<LoginScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: RichText(
-                              text: TextSpan(
-                                text:
-                                    'Esqueceu sua senha?', //incluir um redirecionamento para modificar a senha
-                                style: GoogleFonts.roboto(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  color: Color(0xFF646464),
-                                ),
-                              ),
-                            ),
-                          ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Esqueceu sua senha?',
+                        style: GoogleFonts.roboto(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Color(0xFF646464),
                         ),
-                      ],
+                      ),
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * .03),
                     SizedBox(
