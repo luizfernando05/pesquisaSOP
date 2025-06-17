@@ -9,6 +9,9 @@ export class UserRepository implements IUserRepository {
   constructor() {
     this.ormRepository = AppDataSource.getRepository(User);
   }
+  findById(id: string): Promise<User | null> {
+    return this.ormRepository.findOne({ where: { id } });
+  }
 
   async create(user: User): Promise<User> {
     const createUser = this.ormRepository.create(user);
