@@ -21,8 +21,8 @@ export class MedicalData {
   @Column({ type: 'float', nullable: false })
   weight: number;
 
-  @Column({ type: 'boolean', nullable: false })
-  cycle: boolean;
+  @Column({ type: 'integer', nullable: false })
+  cycle: number;
 
   @Column({ type: 'float', nullable: false })
   amg: number;

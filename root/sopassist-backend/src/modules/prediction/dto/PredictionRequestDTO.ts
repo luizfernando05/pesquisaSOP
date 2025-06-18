@@ -1,6 +1,6 @@
 export interface PredictionRequestDTO {
   weight: number;
-  cycle: boolean;
+  cycle: number;
   amg: number;
   weightGain: boolean;
   hairLoss: boolean;

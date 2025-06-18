@@ -1,7 +1,7 @@
 export interface CreateMedicalDataDTO {
   patientId: string;
   weight: number;
-  cycle: boolean;
+  cycle: number;
   amg: number;
   weightGain: boolean;
   hairLoss: boolean;
