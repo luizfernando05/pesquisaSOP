@@ -15,7 +15,7 @@ def predict():
 
         required_fields = [
             "weight", "cycle", "amh", "weight_gain", "hair_growth", 
-            "skin_darkening", "pimples", "fast_food", "follicle(L)", "follicle(R)"
+            "skin_darkening", "pimples", "fast_food", "follicleL", "follicleR"
         ]
 
         missing_fields = [field for field in required_fields if field not in data]
@@ -32,8 +32,8 @@ def predict():
             int(data["skin_darkening"]),
             int(data["pimples"]),
             int(data["fast_food"]),
-            int(data["follicle(L)"]),
-            int(data["follicle(R)"]),
+            int(data["follicleL"]),
+            int(data["follicleR"]),
         ]
 
         input_data = pd.DataFrame([features], columns=[

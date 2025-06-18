@@ -16,15 +16,15 @@ export class PredictionService {
     try {
       const transformedData = {
         weight: data.weight,
-        cycle: data.cycle,
-        amg: data.amg,
-        weightGain: data.weightGain ? 1 : 0,
-        hairLoss: data.hairLoss ? 1 : 0,
-        darkeningSkin: data.darkeningSkin ? 1 : 0,
-        pimple: data.pimple ? 1 : 0,
-        fastFood: data.fastFood ? 1 : 0,
-        leftFollicles: data.leftFollicles,
-        rightFollicles: data.rightFollicles,
+        cycle: data.cycle ? 4 : 2,
+        amh: data.amg,
+        weight_gain: data.weightGain ? 1 : 0,
+        hair_growth: data.hairLoss ? 1 : 0,
+        skin_darkening: data.darkeningSkin ? 1 : 0,
+        pimples: data.pimple ? 1 : 0,
+        fast_food: data.fastFood ? 1 : 0,
+        follicleL: data.leftFollicles,
+        follicleR: data.rightFollicles,
       };
 
       const response = await axios.post(
