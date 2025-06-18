@@ -31,7 +31,7 @@ export class CreateMedicalDataTable1749139828661 implements MigrationInterface {
           },
           {
             name: 'cycle',
-            type: 'boolean',
+            type: 'integer',
             isNullable: false,
           },
           {
