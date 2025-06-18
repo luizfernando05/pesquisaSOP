@@ -14,7 +14,23 @@ export class PredictionService {
 
   async predict(data: PredictionRequestDTO): Promise<PredictionResponseDTO> {
     try {
-      const response = await axios.post(`${this.apiUrl}/predict`, data);
+      const transformedData = {
+        weight: data.weight,
+        cycle: data.cycle,
+        amg: data.amg,
+        weightGain: data.weightGain ? 1 : 0,
+        hairLoss: data.hairLoss ? 1 : 0,
+        darkeningSkin: data.darkeningSkin ? 1 : 0,
+        pimple: data.pimple ? 1 : 0,
+        fastFood: data.fastFood ? 1 : 0,
+        leftFollicles: data.leftFollicles,
+        rightFollicles: data.rightFollicles,
+      };
+
+      const response = await axios.post(
+        `${this.apiUrl}/predict`,
+        transformedData
+      );
 
       const flaskResponse = response.data;
 
