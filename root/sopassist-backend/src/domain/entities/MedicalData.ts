@@ -12,11 +12,11 @@ import User from './User';
 @Entity('medical_data')
 export class MedicalData {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'patient_id' })
-  patient: User;
+  patientId: User;
 
   @Column({ type: 'float', nullable: false })
   weight: number;

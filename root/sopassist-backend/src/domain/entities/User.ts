@@ -26,7 +26,7 @@ export class User {
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
-  @OneToMany(() => MedicalData, (medicalData) => medicalData.patient)
+  @OneToMany(() => MedicalData, (medicalData) => medicalData.patientId)
   medicalData: MedicalData[];
 
   @OneToMany(() => Prediction, (prediction) => prediction.patient)
