@@ -123,7 +123,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Image.asset(
                     'assets/logo/logo.png',
-                    width: MediaQuery.of(context).size.width * .3,
+                    width: MediaQuery.of(context).size.width * .2,
                     height: MediaQuery.of(context).size.height * .2,
                   ),
                 ],
