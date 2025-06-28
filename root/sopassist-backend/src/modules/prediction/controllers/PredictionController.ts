@@ -12,7 +12,7 @@ export class PredictionController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const { patientId } = req.body;
+      const patientId = req.user?.id;
 
       const predictUseCase = new PredictUseCase(
         new PredictionService(),

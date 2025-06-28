@@ -10,8 +10,9 @@ export class CreateMedicalDataController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
+      const patientId = req.user?.id;
+
       const {
-        patientId,
         weight,
         cycle,
         amg,
