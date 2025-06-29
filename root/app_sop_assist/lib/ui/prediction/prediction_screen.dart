@@ -1,9 +1,11 @@
+import 'package:app_sop_assist/ui/result/result_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:async';
 
 class PredictionScreen extends StatefulWidget {
   const PredictionScreen({super.key});
@@ -14,10 +16,13 @@ class PredictionScreen extends StatefulWidget {
 
 class _PredictionScreenState extends State<PredictionScreen> {
   final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _menstrualCycleController = TextEditingController();
+  final TextEditingController _menstrualCycleController =
+      TextEditingController();
   final TextEditingController _amgValueController = TextEditingController();
-  final TextEditingController _leftFolliclesController = TextEditingController();
-  final TextEditingController _rightFolliclesController = TextEditingController();
+  final TextEditingController _leftFolliclesController =
+      TextEditingController();
+  final TextEditingController _rightFolliclesController =
+      TextEditingController();
 
   String? _gainedWeightValue;
   String? _hairLossValue;
@@ -80,9 +85,13 @@ class _PredictionScreenState extends State<PredictionScreen> {
               color: Color(0xFF646464),
             ),
           ),
-          items: items.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
+          items:
+              items.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
           onChanged: onChanged,
         ),
       ],
@@ -137,13 +146,13 @@ class _PredictionScreenState extends State<PredictionScreen> {
       _predictionResult = 'Carregando dados do usuário...';
     });
 
-    final patientId = await _storage.read(key: 'patient_id');
     final token = await _storage.read(key: 'jwt_token');
 
-    if (patientId == null || token == null) {
+    if (token == null) {
       setState(() {
         _isLoading = false;
-        _predictionResult = 'Erro: ID do paciente ou token de autenticação não encontrado. Faça login novamente.';
+        _predictionResult =
+            'Erro: Token de autenticação não encontrado. Faça login novamente.';
       });
       print('<<< Fim de _makePrediction: patientId ou token ausente.');
       return;
@@ -152,8 +161,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
     setState(() {
       _predictionResult = 'Enviando dados de predição...';
     });
-
-    // Validação e tratamento de dados de entrada ---
 
     // Tratamento para substituir vírgula por ponto em campos decimais
     String weightText = _weightController.text.replaceAll(',', '.');
@@ -166,14 +173,20 @@ class _PredictionScreenState extends State<PredictionScreen> {
     final int? rightFollicles = int.tryParse(_rightFolliclesController.text);
 
     // Validação básica
-    if (weight == null || cycle == null || amg == null ||
-        leftFollicles == null || rightFollicles == null ||
-        _gainedWeightValue == null || _hairLossValue == null ||
-        _darkeningSkinValue == null || _hasAcneValue == null ||
+    if (weight == null ||
+        cycle == null ||
+        amg == null ||
+        leftFollicles == null ||
+        rightFollicles == null ||
+        _gainedWeightValue == null ||
+        _hairLossValue == null ||
+        _darkeningSkinValue == null ||
+        _hasAcneValue == null ||
         _consumesFastFoodValue == null) {
       setState(() {
         _isLoading = false;
-        _predictionResult = 'Por favor, preencha todos os campos corretamente com valores válidos.';
+        _predictionResult =
+            'Por favor, preencha todos os campos corretamente com valores válidos.';
       });
       print('<<< Fim de _makePrediction: Campos incompletos/inválidos.');
       return;
@@ -188,7 +201,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
     // Construir o corpo da requisição JSON
     final Map<String, dynamic> requestBody = {
-      "patientId": patientId,
       "weight": weight,
       "cycle": cycle,
       "amg": amg,
@@ -201,35 +213,90 @@ class _PredictionScreenState extends State<PredictionScreen> {
       "rightFollicles": rightFollicles,
     };
 
-    // Imprime o JSON no console antes de enviar, apagar depois
-    print('--- JSON a ser enviado ---');
-    print(json.encode(requestBody));
-    print('--------------------------');
-
-    // URL do endpoint de predição
+    // URLs
     final Uri url = Uri.parse('http://10.0.2.2:3000/medical');
+    final Uri urlPrediction = Uri.parse('http://10.0.2.2:3000/prediction');
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(requestBody),
-      );
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: json.encode(requestBody),
+          )
+          .timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              throw Text('A requisição de predição excedeu o tempo limite.');
+            },
+          );
 
       if (response.statusCode == 201) {
         setState(() {
-          _predictionResult = 'Predição realizada com sucesso!';
+          _predictionResult = 'Dados adicionados com sucesso!';
         });
         print('Requisição bem-sucedida! Resposta: ${response.body}');
+
+        print("INICIO DA API>>>>>>>");
+        final responsePrediction = await http
+            .post(
+              urlPrediction,
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $token',
+              },
+              body: json.encode({}),
+            )
+            .timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                throw TimeoutException(
+                  'A requisição de predição excedeu o tempo limite.',
+                );
+              },
+            );
+
+        if (responsePrediction.statusCode == 200) {
+          final Map<String, dynamic> predictionResponseBody = jsonDecode(
+            responsePrediction.body,
+          );
+          final String predictionValue =
+              predictionResponseBody['predictionResult'].toString();
+
+          final String confidenceValue =
+              predictionResponseBody['confidenceScore'].toString();
+
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => ResultScreen(
+                    predictionResult: predictionValue,
+                    confidence: confidenceValue,
+                  ),
+            ),
+          );
+          print(
+            ' RESPOSTA DA PREDICAO: ${responsePrediction.body} STATUS ${response.statusCode}',
+          );
+          print("FIM DA API>>>>>>>");
+        }
       } else {
         setState(() {
-          _predictionResult = 'Erro ao realizar predição: ${response.statusCode} - ${response.body}';
+          final data = jsonDecode(response.body);
+          final mensagem = data['messages'];
+
+          _predictionResult =
+              'Erro ao realizar predição: ${mensagem.toString()}';
         });
         print('Erro na requisição: ${response.statusCode} - ${response.body}');
       }
+
+      print(response.body);
     } catch (e) {
       setState(() {
         _predictionResult = 'Erro de conexão ao enviar predição: $e';
@@ -443,18 +510,19 @@ class _PredictionScreenState extends State<PredictionScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                          : Text(
-                              'Fazer Predição',
-                              style: GoogleFonts.poppins(
-                                fontSize: screenWidth * 0.045,
-                                color: const Color(0xFFFEFCFF),
-                                fontWeight: FontWeight.w500,
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : Text(
+                                'Fazer Predição',
+                                style: GoogleFonts.poppins(
+                                  fontSize: screenWidth * 0.045,
+                                  color: const Color(0xFFFEFCFF),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
                     ),
                   ),
 
@@ -465,9 +533,10 @@ class _PredictionScreenState extends State<PredictionScreen> {
                         _predictionResult,
                         style: GoogleFonts.roboto(
                           fontSize: 14,
-                          color: _predictionResult.contains('sucesso')
-                              ? Colors.green
-                              : Colors.red,
+                          color:
+                              _predictionResult.contains('sucesso')
+                                  ? Colors.green
+                                  : Colors.red,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
