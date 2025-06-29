@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:app_sop_assist/ui/prediction/prediction_screen.dart';
-import 'dart:async'; 
+import 'dart:async';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,7 +51,8 @@ class _LoginScreen extends State<LoginScreen> {
         ),
       );
       setState(() {
-        _isLoginInProgress = false; // Permite novas tentativas após o erro de validação local
+        _isLoginInProgress =
+            false; // Permite novas tentativas após o erro de validação local
       });
       return;
     }
@@ -68,24 +69,30 @@ class _LoginScreen extends State<LoginScreen> {
           .timeout(
             const Duration(seconds: 5),
             onTimeout: () {
-              throw TimeoutException('A requisição excedeu o tempo limite de 5 segundos.');
+              throw TimeoutException(
+                'A requisição excedeu o tempo limite de 5 segundos.',
+              );
             },
           );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token']; // Pega o token
-        final String? patientId = data['patientId']; // Captura o patientId da resposta
+        print('TOKEN: $token');
 
-        await storage.write(key: 'jwt_token', value: token);
-        if (patientId != null) {
-          await storage.write(key: 'patient_id', value: patientId); // Salva o patientId
+        if (token != null) {
+          await storage.write(key: 'jwt_token', value: token);
+          // Salva o token
         } else {
-          // Lidar com o caso onde o patientId não vem na resposta
-          ScaffoldMessenger.of(context).hideCurrentSnackBar(); // Oculta SnackBar anterior
+          // Lidar com erros
+          ScaffoldMessenger.of(
+            context,
+          ).hideCurrentSnackBar(); // Oculta SnackBar anterior
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Login realizado, mas o ID do paciente não foi encontrado. Contate o suporte.'),
+              content: Text(
+                'Ops não consegui encontrar seu o token',
+              ),
               backgroundColor: Color(0xFFAB4ABA),
             ),
           );
@@ -94,7 +101,9 @@ class _LoginScreen extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const PredictionScreen(), // Não precisa passar o ID, será lido do storage
+            builder:
+                (context) =>
+                    const PredictionScreen(), // Token já ficou salvo
           ),
         );
       } else {
@@ -113,19 +122,24 @@ class _LoginScreen extends State<LoginScreen> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: const Color(0xFFAB4ABA)),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: const Color(0xFFAB4ABA),
+          ),
         );
       }
     } on TimeoutException catch (e) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar(); 
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('A conexão demorou demais. Verifique sua conexão ou contate o suporte. Detalhe: $e'),
+          content: Text(
+            'A conexão demorou demais. Verifique sua conexão ou contate o suporte. Detalhe: $e',
+          ),
           backgroundColor: const Color(0xFFAB4ABA),
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar(); 
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro na conexão. Por favor, tente novamente.'),
@@ -134,7 +148,8 @@ class _LoginScreen extends State<LoginScreen> {
       );
     } finally {
       setState(() {
-        _isLoginInProgress = false; // Finaliza o progresso, permitindo novas tentativas
+        _isLoginInProgress =
+            false; // Finaliza o progresso, permitindo novas tentativas
       });
     }
   }
@@ -204,11 +219,15 @@ class _LoginScreen extends State<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFE0E0E0),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFFAB4ABA)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFAB4ABA),
+                          ),
                         ),
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -228,11 +247,15 @@ class _LoginScreen extends State<LoginScreen> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE0E0E0),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFAB4ABA)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFAB4ABA),
+                              ),
                             ),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -268,23 +291,27 @@ class _LoginScreen extends State<LoginScreen> {
                       height: 48,
                       child: ElevatedButton(
                         // Desabilita o botão enquanto o login estiver em progresso
-                        onPressed: _isLoginInProgress ? null : () => _login(context),
+                        onPressed:
+                            _isLoginInProgress ? null : () => _login(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFAB4ABA),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: _isLoginInProgress
-                            ? const CircularProgressIndicator(color: Colors.white) // Mostra um spinner enquanto carrega
-                            : Text(
-                                'Entrar',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  color: const Color(0xFFFEFCFF),
-                                  fontWeight: FontWeight.w500,
+                        child:
+                            _isLoginInProgress
+                                ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                ) // Mostra um spinner enquanto carrega
+                                : Text(
+                                  'Entrar',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    color: const Color(0xFFFEFCFF),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
                       ),
                     ),
                     const SizedBox(height: 16),
