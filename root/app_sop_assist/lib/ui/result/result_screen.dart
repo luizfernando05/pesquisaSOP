@@ -5,16 +5,63 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ResultScreen extends StatefulWidget {
-  const ResultScreen({super.key});
+  final String predictionResult;
+  final String confidence;
+
+  const ResultScreen({
+    super.key,
+    required this.predictionResult,
+    required this.confidence,
+  });
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  // Declarando _launched como uma variável de estado para que possa ser atualizada
-  // ignore: unused_field
-  Future<void>? _launched;
+  Future<void>? _launched; // ignore: unused_field
+
+  Future<void> launchInBrowserView(Uri url) async {
+    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
+      throw Exception('Não foi possível abrir $url');
+    }
+  }
+
+  // Método para formatar a frase principal ("seja portadora" ou "não seja portadora")
+  String _getPredictionPhrase(String result) {
+    if (result.toLowerCase() == 'positive') {
+      return 'seja portadora';
+    } else if (result.toLowerCase() == 'negative') {
+      return 'não seja portadora';
+    }
+    return result; // Fallback se a string não for "positive" ou "negative"
+  }
+
+  // Método para formatar a classificação no container de resultado ("Positiva" ou "Negativa")
+  String _formatClassification(String result) {
+    if (result.toLowerCase() == 'positive') {
+      return 'Positiva';
+    } else if (result.toLowerCase() == 'negative') {
+      return 'Negativa';
+    }
+    return result; // Fallback
+  }
+
+  // Método para formatar a confiança para porcentagem
+  String _formatConfidence(String confidenceStr) {
+    try {
+      double confidence = double.parse(confidenceStr);
+      if (confidence >= 0 && confidence <= 1) { 
+        return '${(confidence * 100).toStringAsFixed(0)}%'; 
+      } else if (confidence > 1 && confidence <= 100) { 
+        return '${confidence.toStringAsFixed(0)}%'; 
+      }
+    } catch (e) {
+      print('Erro ao formatar confiança: $e');
+    }
+    return '$confidenceStr%'; // Fallback para caso não consiga formatar, adiciona só o %
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +85,11 @@ class _ResultScreenState extends State<ResultScreen> {
       path: '/tratamento-para-ovario-policistico/',
     );
 
-    // Função para lançar a URL no navegador in-app
-    Future<void> launchInBrowserView(Uri url) async {
-      if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-        throw Exception('Não foi possível abrir $url');
-      }
-    }
+    // Chamar os métodos de formatação
+    final String predictionPhrase = _getPredictionPhrase(widget.predictionResult);
+    final String formattedClassificationText = _formatClassification(widget.predictionResult);
+    final String formattedConfidenceText = _formatConfidence(widget.confidence);
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -79,7 +125,6 @@ class _ResultScreenState extends State<ResultScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: screenHeight * 0.02),
-                  // Texto principal com "portadora" colorido
                   RichText(
                     textAlign: TextAlign.justify,
                     text: TextSpan(
@@ -87,19 +132,16 @@ class _ResultScreenState extends State<ResultScreen> {
                         fontSize: screenWidth * 0.05,
                         color: const Color(0xFF202020),
                         fontWeight: FontWeight.w500,
-                        height:
-                            1.2, // Ajuste a altura da linha para melhor leitura
+                        height: 1.2,
                       ),
                       children: <TextSpan>[
                         const TextSpan(
                           text: 'Com base nos seus dados, é provável que você ',
                         ),
                         TextSpan(
-                          text: 'seja portadora',
+                          text: predictionPhrase, 
                           style: GoogleFonts.poppins(
-                            color: const Color(
-                              0xFFAB4ABA,
-                            ), // Cor roxa para "portadora"
+                            color: const Color(0xFFAB4ABA),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -111,29 +153,18 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                   SizedBox(height: screenHeight * 0.04),
 
-                  // Container de Resultado
+                  // Container de Resultado 
                   Center(
                     child: Container(
-                      width:
-                          MediaQuery.of(
-                            context,
-                          ).size.width, // Ocupa a largura total disponível
-                      padding: const EdgeInsets.all(
-                        16.0,
-                      ), // Padding interno de 16px em todos os lados
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: Colors.white, // Fundo branco
-                        borderRadius: BorderRadius.circular(
-                          10.0,
-                        ), 
-                        border: Border.all(
-                          color: const Color(0xFFE0E0E0),
-                        ), 
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: const Color(0xFFE0E0E0)),
                       ),
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start, 
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Resultado",
@@ -148,26 +179,19 @@ class _ResultScreenState extends State<ResultScreen> {
                           RichText(
                             text: TextSpan(
                               style: GoogleFonts.roboto(
-                                // Usando Roboto para as classificações, como na imagem
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
-                                color: const Color(
-                                  0xFF646464,
-                                ), // Cor cinza para o texto
+                                color: const Color(0xFF646464),
                               ),
-
                               children: [
-                                TextSpan(text: 'Classificação: '),
+                                const TextSpan(text: 'Classificação: '),
                                 TextSpan(
-                                  text: 'Positiva', //Ajustar para receber do back
+                                  text: formattedClassificationText, 
                                   style: GoogleFonts.roboto(
-                                    // Usando Roboto para as classificações, como na imagem
                                     fontSize: 14,
                                     height: 2,
                                     fontWeight: FontWeight.normal,
-                                    color: const Color(
-                                      0xFF202020,
-                                    ), 
+                                    color: const Color(0xFF202020),
                                   ),
                                 ),
                               ],
@@ -178,21 +202,16 @@ class _ResultScreenState extends State<ResultScreen> {
                               style: GoogleFonts.roboto(
                                 fontSize: 14,
                                 fontWeight: FontWeight.normal,
-                                color: const Color(
-                                  0xFF646464,
-                                ), 
+                                color: const Color(0xFF646464),
                               ),
-
                               children: [
-                                TextSpan(text: 'Confiança da predição: '),
+                                const TextSpan(text: 'Confiança da predição: '),
                                 TextSpan(
-                                  text: '86%', //Ajustar para receber do back
+                                  text: formattedConfidenceText, 
                                   style: GoogleFonts.roboto(
                                     fontSize: 14,
                                     fontWeight: FontWeight.normal,
-                                    color: const Color(
-                                      0xFF202020,
-                                    ), // Cor cinza para o texto
+                                    color: const Color(0xFF202020),
                                   ),
                                 ),
                               ],
@@ -212,9 +231,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         size: 17,
                         color: Color(0xFF646464),
                       ),
-                      const SizedBox(
-                        width: 5.0,
-                      ), 
+                      const SizedBox(width: 5.0),
                       Expanded(
                         child: Text(
                           "Ressaltamos que esta predição é realizada por um modelo computacional, sujeito a falhas. A confirmação médica é essencial.",
@@ -228,7 +245,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: screenHeight * 0.04), 
+                  SizedBox(height: screenHeight * 0.04),
 
                   Text(
                     "Entre em contato com um médico para confirmar o diagnóstico.",
@@ -245,26 +262,19 @@ class _ResultScreenState extends State<ResultScreen> {
                     children: [
                       InkWell(
                         onTap: () {
-                          // Ao tocar, chamamos o método para abrir a URL
                           setState(() {
-                            _launched = launchInBrowserView(
-                              toLaunchLeiaSobreSop,
-                            );
+                            _launched = launchInBrowserView(toLaunchLeiaSobreSop);
                           });
                         },
-                        splashColor: Color(
-                          0xFFAB4ABA,
-                        ).withOpacity(0.2), // Cor do efeito de toque
-                        highlightColor: Color(
-                          0xFFAB4ABA,
-                        ).withOpacity(0.1), // Cor quando pressionado
+                        splashColor: const Color(0xFFAB4ABA).withOpacity(0.2),
+                        highlightColor: const Color(0xFFAB4ABA).withOpacity(0.1),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               PhosphorIconsRegular.heart,
                               color: Color(0xFFAB4ABA),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               "Leia sobre a SOP",
                               style: GoogleFonts.poppins(
@@ -284,24 +294,18 @@ class _ResultScreenState extends State<ResultScreen> {
                       InkWell(
                         onTap: () {
                           setState(() {
-                            _launched = launchInBrowserView(
-                              toLaunchTratamentos,
-                            );
+                            _launched = launchInBrowserView(toLaunchTratamentos);
                           });
                         },
-                        splashColor: Color(
-                          0xFFAB4ABA,
-                        ).withOpacity(0.2), 
-                        highlightColor: Color(
-                          0xFFAB4ABA,
-                        ).withOpacity(0.1), 
+                        splashColor: const Color(0xFFAB4ABA).withOpacity(0.2),
+                        highlightColor: const Color(0xFFAB4ABA).withOpacity(0.1),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               PhosphorIconsRegular.firstAidKit,
                               color: Color(0xFFAB4ABA),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               "Tratamentos para a SOP",
                               style: GoogleFonts.poppins(
@@ -324,19 +328,15 @@ class _ResultScreenState extends State<ResultScreen> {
                             _launched = launchInBrowserView(toLaunchInstagram);
                           });
                         },
-                        splashColor: Color(
-                          0xFFAB4ABA,
-                        ).withOpacity(0.2), 
-                        highlightColor: Color(
-                          0xFFAB4ABA,
-                        ).withOpacity(0.1), 
+                        splashColor: const Color(0xFFAB4ABA).withOpacity(0.2),
+                        highlightColor: const Color(0xFFAB4ABA).withOpacity(0.1),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               PhosphorIconsRegular.instagramLogo,
                               color: Color(0xFFAB4ABA),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               "Conheça-nos",
                               style: GoogleFonts.poppins(
