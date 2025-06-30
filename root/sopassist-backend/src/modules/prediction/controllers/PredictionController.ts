@@ -24,8 +24,8 @@ export class PredictionController {
       const result = await predictUseCase.execute({ patientId });
 
       const predictionLabels: { [key: number]: string } = {
-        0: 'Positive',
-        1: 'Negative',
+        0: 'Negative',
+        1: 'Positive',
       };
 
       return res.status(200).json({
