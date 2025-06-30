@@ -23,7 +23,8 @@ export class CreateMedicalDataUseCase {
       await this.medicalDataRepository.findByPatientId(patientId);
 
     if (existingData) {
-      throw new AppError('Dados médicos para este paciente já existem');
+      Object.assign(existingData, data);
+      return this.medicalDataRepository.update(existingData);
     }
 
     const medicalData = new MedicalData();
