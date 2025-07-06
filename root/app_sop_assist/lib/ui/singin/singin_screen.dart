@@ -282,43 +282,9 @@ class _SinginScreenState extends State<SinginScreen> {
                           style: TextStyle(color: Colors.red, fontSize: 12),
                         ),
                       ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: isChecked,
-                          activeColor: Color(0xFFAB4ABA),
-                          onChanged: (newBool) {
-                            setState(() {
-                              isChecked = newBool;
-                            });
-                          },
-                        ),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              text:
-                                  'Ao criar uma conta você concorda com nossos ',
-                              style: GoogleFonts.roboto(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: Color(0xFF646464),
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: 'Termos e Condições.',
-                                  style: TextStyle(
-                                    color: Color(0xFFAB4ABA),
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
+                   
+                    
                     SizedBox(
                       width: double.infinity,
                       height: 48,
