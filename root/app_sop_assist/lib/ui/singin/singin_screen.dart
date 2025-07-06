@@ -1,4 +1,5 @@
 import 'package:app_sop_assist/ui/home/home_screen.dart';
+import 'package:app_sop_assist/ui/utils/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,16 +19,23 @@ class _SinginScreenState extends State<SinginScreen> {
   bool? isChecked = false;
 
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _stateController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  String? _selectedState;
   Map<String, String> errors = {};
 
   Future<void> _registerUser() async {
     setState(() {
       errors.clear();
     });
+
+    if (_selectedState == null || _selectedState!.isEmpty) {
+      setState(() {
+        errors['state'] = 'Por favor, selecione um estado.';
+      });
+      return;
+    }
 
     final url = Uri.parse('http://10.0.2.2:3000/user/');
 
@@ -38,7 +46,7 @@ class _SinginScreenState extends State<SinginScreen> {
         body: jsonEncode({
           'name': _nameController.text,
           'email': _emailController.text,
-          'state': _stateController.text,
+          'state': _selectedState,
           'password': _passwordController.text,
         }),
       );
@@ -163,31 +171,59 @@ class _SinginScreenState extends State<SinginScreen> {
                         ),
                       ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: _stateController,
-                      decoration: InputDecoration(
-                        labelText: 'Estado',
-                        labelStyle: GoogleFonts.roboto(
+                    DropdownButtonFormField<String>(
+                        value: _selectedState,
+                        decoration: InputDecoration(
+                          labelText: 'Estado', 
+                          labelStyle: GoogleFonts.roboto(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: const Color(0xFF646464),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE0E0E0),
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFAB4ABA),
+                              width: 1,
+                            ),
+                          ),
+                          errorText: errors.containsKey('state') ? errors['state'] : null,
+                        ),
+                        items: estadosBrasileiros.map((String state) {
+                          return DropdownMenuItem<String>(
+                            value: state,
+                            child: Text(
+                              state,
+                              style: GoogleFonts.roboto(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: const Color(0xFF202020),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedState = newValue;
+                            if (errors.containsKey('state')) {
+                              errors.remove('state');
+                            }
+                          });
+                        },
+                        isExpanded: true,
+                        style: GoogleFonts.roboto(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
-                          color: Color(0xFF646464),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFE0E0E0),
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Color(0xFFAB4ABA),
-                            width: 1,
-                          ),
+                          color: const Color(0xFF202020),
                         ),
                       ),
-                    ),
                     if (errors.containsKey('state'))
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
@@ -283,8 +319,7 @@ class _SinginScreenState extends State<SinginScreen> {
                         ),
                       ),
                     const SizedBox(height: 20),
-                   
-                    
+
                     SizedBox(
                       width: double.infinity,
                       height: 48,
