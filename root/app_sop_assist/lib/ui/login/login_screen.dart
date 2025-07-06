@@ -98,6 +98,14 @@ class _LoginScreen extends State<LoginScreen> {
           );
         }
 
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login realizado com sucesso!'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Color(0xFFAB4ABA),
+          ),
+        );
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
