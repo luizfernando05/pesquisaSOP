@@ -274,17 +274,7 @@ class _LoginScreen extends State<LoginScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Esqueceu sua senha?',
-                        style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: const Color(0xFF646464),
-                        ),
-                      ),
-                    ),
+                    
                     SizedBox(height: MediaQuery.of(context).size.height * .03),
                     SizedBox(
                       width: double.infinity,
