@@ -54,7 +54,21 @@ class _SinginScreenState extends State<SinginScreen> {
       if (!mounted) return;
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        Navigator.pushNamed(context, "/prediction");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Usuária criada com sucesso!'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Color(0xFFAB4ABA),
+          ),
+        );
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          }
+        });
       } else {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
@@ -172,58 +186,62 @@ class _SinginScreenState extends State<SinginScreen> {
                       ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                        value: _selectedState,
-                        decoration: InputDecoration(
-                          labelText: 'Estado', 
-                          labelStyle: GoogleFonts.roboto(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: const Color(0xFF646464),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFE0E0E0),
-                              width: 1,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFAB4ABA),
-                              width: 1,
-                            ),
-                          ),
-                          errorText: errors.containsKey('state') ? errors['state'] : null,
-                        ),
-                        items: estadosBrasileiros.map((String state) {
-                          return DropdownMenuItem<String>(
-                            value: state,
-                            child: Text(
-                              state,
-                              style: GoogleFonts.roboto(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: const Color(0xFF202020),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedState = newValue;
-                            if (errors.containsKey('state')) {
-                              errors.remove('state');
-                            }
-                          });
-                        },
-                        isExpanded: true,
-                        style: GoogleFonts.roboto(
+                      value: _selectedState,
+                      decoration: InputDecoration(
+                        labelText: 'Estado',
+                        labelStyle: GoogleFonts.roboto(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
-                          color: const Color(0xFF202020),
+                          color: const Color(0xFF646464),
                         ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFE0E0E0),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFAB4ABA),
+                            width: 1,
+                          ),
+                        ),
+                        errorText:
+                            errors.containsKey('state')
+                                ? errors['state']
+                                : null,
                       ),
+                      items:
+                          estadosBrasileiros.map((String state) {
+                            return DropdownMenuItem<String>(
+                              value: state,
+                              child: Text(
+                                state,
+                                style: GoogleFonts.roboto(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                  color: const Color(0xFF202020),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedState = newValue;
+                          if (errors.containsKey('state')) {
+                            errors.remove('state');
+                          }
+                        });
+                      },
+                      isExpanded: true,
+                      style: GoogleFonts.roboto(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: const Color(0xFF202020),
+                      ),
+                    ),
                     if (errors.containsKey('state'))
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
