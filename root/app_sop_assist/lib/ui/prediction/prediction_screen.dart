@@ -16,8 +16,6 @@ class PredictionScreen extends StatefulWidget {
 
 class _PredictionScreenState extends State<PredictionScreen> {
   final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _menstrualCycleController =
-      TextEditingController();
   final TextEditingController _amgValueController = TextEditingController();
   final TextEditingController _leftFolliclesController =
       TextEditingController();
@@ -29,6 +27,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
   String? _darkeningSkinValue;
   String? _hasAcneValue;
   String? _consumesFastFoodValue;
+  int? _menstrualCycleValue;
 
   bool _isLoading = false;
   String _predictionResult = '';
@@ -37,7 +36,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
   @override
   void dispose() {
     _weightController.dispose();
-    _menstrualCycleController.dispose();
     _amgValueController.dispose();
     _leftFolliclesController.dispose();
     _rightFolliclesController.dispose();
@@ -167,7 +165,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
     String amgValueText = _amgValueController.text.replaceAll(',', '.');
 
     final double? weight = double.tryParse(weightText);
-    final int? cycle = int.tryParse(_menstrualCycleController.text);
+    final int? cycle = _menstrualCycleValue;
     final double? amg = double.tryParse(amgValueText);
     final int? leftFollicles = int.tryParse(_leftFolliclesController.text);
     final int? rightFollicles = int.tryParse(_rightFolliclesController.text);
@@ -375,10 +373,64 @@ class _PredictionScreenState extends State<PredictionScreen> {
                       ),
                       SizedBox(width: fieldHorizontalSpacing),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _menstrualCycleController,
-                          labelText: 'Ciclo menstrual?',
-                          keyboardType: TextInputType.number,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ciclo menstrual?',
+                              style: GoogleFonts.roboto(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: const Color(0xFF646464),
+                                height: 1.1,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            DropdownButtonFormField<int>(
+                              value: _menstrualCycleValue,
+                              isDense: true,
+                              icon: const SizedBox.shrink(),
+                              decoration: InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFE0E0E0),
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFAB4ABA),
+                                    width: 1,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 2,
+                                ),
+                                suffixIcon: const Icon(
+                                  PhosphorIconsRegular.caretDown,
+                                  color: Color(0xFF646464),
+                                ),
+                              ),
+                              items: const [
+                                DropdownMenuItem<int>(
+                                  value: 2,
+                                  child: Text('Regular'),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 4,
+                                  child: Text('Irregular'),
+                                ),
+                              ],
+                              onChanged: (int? newValue) {
+                                setState(() {
+                                  _menstrualCycleValue = newValue;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -417,7 +469,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
                     children: [
                       Expanded(
                         child: _buildDropdownField(
-                          labelText: 'Queda de cabelo?',
+                          labelText: 'Crescimento do cabelo?',
                           items: const ['Sim', 'Não'],
                           selectedValue: _hairLossValue,
                           onChanged: (String? newValue) {
