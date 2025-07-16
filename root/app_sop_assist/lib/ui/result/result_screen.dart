@@ -6,12 +6,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ResultScreen extends StatefulWidget {
   final String predictionResult;
-  final String confidence;
 
   const ResultScreen({
     super.key,
-    required this.predictionResult,
-    required this.confidence,
+    required this.predictionResult
   });
 
   @override
@@ -47,22 +45,6 @@ class _ResultScreenState extends State<ResultScreen> {
     return result; // Fallback
   }
 
-  // Método para formatar a confiança para porcentagem
-  String _formatConfidence(String confidenceStr) {
-    try {
-      double confidence = double.parse(confidenceStr);
-      if (confidence >= 0 && confidence <= 1) { 
-        return '${(confidence * 100).toStringAsFixed(0)}%'; 
-      } else if (confidence > 1 && confidence <= 100) { 
-        return '${confidence.toStringAsFixed(0)}%'; 
-      }
-    } catch (e) {
-      print('Erro ao formatar confiança: $e');
-    }
-    return '$confidenceStr%'; // Fallback para caso não consiga formatar, adiciona só o %
-  }
-
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -88,8 +70,6 @@ class _ResultScreenState extends State<ResultScreen> {
     // Chamar os métodos de formatação
     final String predictionPhrase = _getPredictionPhrase(widget.predictionResult);
     final String formattedClassificationText = _formatClassification(widget.predictionResult);
-    final String formattedConfidenceText = _formatConfidence(widget.confidence);
-
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -190,26 +170,6 @@ class _ResultScreenState extends State<ResultScreen> {
                                   style: GoogleFonts.roboto(
                                     fontSize: 14,
                                     height: 2,
-                                    fontWeight: FontWeight.normal,
-                                    color: const Color(0xFF202020),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.roboto(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: const Color(0xFF646464),
-                              ),
-                              children: [
-                                const TextSpan(text: 'Confiança da predição: '),
-                                TextSpan(
-                                  text: formattedConfidenceText, 
-                                  style: GoogleFonts.roboto(
-                                    fontSize: 14,
                                     fontWeight: FontWeight.normal,
                                     color: const Color(0xFF202020),
                                   ),
