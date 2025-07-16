@@ -264,17 +264,13 @@ class _PredictionScreenState extends State<PredictionScreen> {
           final String predictionValue =
               predictionResponseBody['predictionResult'].toString();
 
-          final String confidenceValue =
-              predictionResponseBody['confidenceScore'].toString();
-
           if (!mounted) return;
           Navigator.push(
             context,
             MaterialPageRoute(
               builder:
                   (context) => ResultScreen(
-                    predictionResult: predictionValue,
-                    confidence: confidenceValue,
+                    predictionResult: predictionValue
                   ),
             ),
           );
