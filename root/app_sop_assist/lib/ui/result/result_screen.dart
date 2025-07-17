@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:translator/translator.dart';
 
 class ResultScreen extends StatefulWidget {
   final String predictionResult;
+  final String? llmAdviceText;
 
   const ResultScreen({
     super.key,
-    required this.predictionResult
+    required this.predictionResult,
+    required this.llmAdviceText,
   });
 
   @override
@@ -18,6 +20,27 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   Future<void>? _launched; // ignore: unused_field
+  final translator = GoogleTranslator(); 
+  
+  late Future<String> _translatedAdviceFuture;
+
+  Future<String> _translateAdvice(String textToTranslate) async {
+    if (textToTranslate.isEmpty) return '';
+    try {
+      final translation = await translator.translate(textToTranslate, from: 'en', to: 'pt');
+      return translation.text;
+    } catch (e) {
+      print('Erro ao traduzir conselho da LLM: $e');
+      return 'Não foi possível traduzir o conselho.';
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar a tradução assim que o widget é inicializado
+    _translatedAdviceFuture = _translateAdvice(widget.llmAdviceText ?? '');
+  }
 
   Future<void> launchInBrowserView(Uri url) async {
     if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
@@ -32,7 +55,7 @@ class _ResultScreenState extends State<ResultScreen> {
     } else if (result.toLowerCase() == 'negative') {
       return 'não seja portadora';
     }
-    return result; // Fallback se a string não for "positive" ou "negative"
+    return result; 
   }
 
   // Método para formatar a classificação no container de resultado ("Positiva" ou "Negativa")
@@ -42,7 +65,7 @@ class _ResultScreenState extends State<ResultScreen> {
     } else if (result.toLowerCase() == 'negative') {
       return 'Negativa';
     }
-    return result; // Fallback
+    return result; 
   }
 
   @override
@@ -68,8 +91,12 @@ class _ResultScreenState extends State<ResultScreen> {
     );
 
     // Chamar os métodos de formatação
-    final String predictionPhrase = _getPredictionPhrase(widget.predictionResult);
-    final String formattedClassificationText = _formatClassification(widget.predictionResult);
+    final String predictionPhrase = _getPredictionPhrase(
+      widget.predictionResult,
+    );
+    final String formattedClassificationText = _formatClassification(
+      widget.predictionResult,
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -119,7 +146,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           text: 'Com base nos seus dados, é provável que você ',
                         ),
                         TextSpan(
-                          text: predictionPhrase, 
+                          text: predictionPhrase,
                           style: GoogleFonts.poppins(
                             color: const Color(0xFFAB4ABA),
                             fontWeight: FontWeight.w500,
@@ -133,7 +160,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                   SizedBox(height: screenHeight * 0.04),
 
-                  // Container de Resultado 
+                  // Container de Resultado
                   Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width,
@@ -166,7 +193,7 @@ class _ResultScreenState extends State<ResultScreen> {
                               children: [
                                 const TextSpan(text: 'Classificação: '),
                                 TextSpan(
-                                  text: formattedClassificationText, 
+                                  text: formattedClassificationText,
                                   style: GoogleFonts.roboto(
                                     fontSize: 14,
                                     height: 2,
@@ -223,11 +250,15 @@ class _ResultScreenState extends State<ResultScreen> {
                       InkWell(
                         onTap: () {
                           setState(() {
-                            _launched = launchInBrowserView(toLaunchLeiaSobreSop);
+                            _launched = launchInBrowserView(
+                              toLaunchLeiaSobreSop,
+                            );
                           });
                         },
                         splashColor: const Color(0xFFAB4ABA).withOpacity(0.2),
-                        highlightColor: const Color(0xFFAB4ABA).withOpacity(0.1),
+                        highlightColor: const Color(
+                          0xFFAB4ABA,
+                        ).withOpacity(0.1),
                         child: Row(
                           children: [
                             const Icon(
@@ -254,11 +285,15 @@ class _ResultScreenState extends State<ResultScreen> {
                       InkWell(
                         onTap: () {
                           setState(() {
-                            _launched = launchInBrowserView(toLaunchTratamentos);
+                            _launched = launchInBrowserView(
+                              toLaunchTratamentos,
+                            );
                           });
                         },
                         splashColor: const Color(0xFFAB4ABA).withOpacity(0.2),
-                        highlightColor: const Color(0xFFAB4ABA).withOpacity(0.1),
+                        highlightColor: const Color(
+                          0xFFAB4ABA,
+                        ).withOpacity(0.1),
                         child: Row(
                           children: [
                             const Icon(
@@ -289,7 +324,9 @@ class _ResultScreenState extends State<ResultScreen> {
                           });
                         },
                         splashColor: const Color(0xFFAB4ABA).withOpacity(0.2),
-                        highlightColor: const Color(0xFFAB4ABA).withOpacity(0.1),
+                        highlightColor: const Color(
+                          0xFFAB4ABA,
+                        ).withOpacity(0.1),
                         child: Row(
                           children: [
                             const Icon(
@@ -311,12 +348,83 @@ class _ResultScreenState extends State<ResultScreen> {
                     ],
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                  Center(
-                    child: SvgPicture.asset(
-                      'assets/ilustration/ultima.svg',
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      height: MediaQuery.of(context).size.height * 0.2,
-                    ),
+
+                   FutureBuilder<String>(
+                    future: _translatedAdviceFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(color: Color(0xFFAB4ABA)),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Conselho da inteligência artificial:",
+                              style: GoogleFonts.poppins(
+                                fontSize: screenWidth * 0.04,
+                                color: const Color(0xFFAB4ABA),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Erro ao carregar conselho: ${snapshot.error}',
+                              textAlign: TextAlign.justify,
+                              style: GoogleFonts.roboto(
+                                fontSize: 14,
+                                color: Colors.red,
+                                height: 1.5,
+                              ),
+                            ),
+                            SizedBox(height: screenHeight * 0.02),
+                          ],
+                        );
+                      } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Informações da nossa assistente:",
+                              style: GoogleFonts.poppins(
+                                fontSize: screenWidth * 0.04,
+                                color: const Color(0xFFAB4ABA),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            
+                            Container(
+                              constraints: BoxConstraints(
+                                maxHeight: screenHeight * 0.2,
+                                minHeight: screenHeight * 0.05, 
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: const Color(0xFFE0E0E0)), 
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.white,
+                              ),
+                              padding: const EdgeInsets.all(8.0),
+                              child: SingleChildScrollView( 
+                                child: Text(
+                                  snapshot.data!, 
+                                  textAlign: TextAlign.justify,
+                                  style: GoogleFonts.roboto(
+                                    fontSize: 14,
+                                    color: const Color(0xFF202020),
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: screenHeight * 0.02),
+                          ],
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
                   ),
                 ],
               ),

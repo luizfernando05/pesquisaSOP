@@ -212,13 +212,16 @@ class _PredictionScreenState extends State<PredictionScreen> {
     };
 
     // URLs
-    final Uri url = Uri.parse('http://10.0.2.2:3000/medical');
+    final Uri urlMedical = Uri.parse('http://10.0.2.2:3000/medical');
     final Uri urlPrediction = Uri.parse('http://10.0.2.2:3000/prediction');
+    final Uri urlAdvice = Uri.parse('http://10.0.2.2:3000/advice/get');
+
+    String? llmAdviceText;
 
     try {
-      final response = await http
+      final responseMedical = await http
           .post(
-            url,
+            urlMedical,
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -232,11 +235,11 @@ class _PredictionScreenState extends State<PredictionScreen> {
             },
           );
 
-      if (response.statusCode == 201) {
+      if (responseMedical.statusCode == 201) {
         setState(() {
           _predictionResult = 'Dados adicionados com sucesso!';
         });
-        print('Requisição bem-sucedida! Resposta: ${response.body}');
+        print('Requisição bem-sucedida! Resposta: ${responseMedical.body}');
 
         print("INICIO DA API>>>>>>>");
         final responsePrediction = await http
@@ -264,33 +267,60 @@ class _PredictionScreenState extends State<PredictionScreen> {
           final String predictionValue =
               predictionResponseBody['predictionResult'].toString();
 
+          try {
+            final adviceResponse = await http
+                .get(urlAdvice, headers: {'Authorization': 'Bearer $token'})
+                .timeout(const Duration(seconds: 10));
+
+            if (adviceResponse.statusCode == 200) {
+              final Map<String, dynamic> adviceResponseBody = jsonDecode(
+                adviceResponse.body,
+              );
+              llmAdviceText = adviceResponseBody['tips']?.toString();
+              print("CONSELHO RECEBIDO");
+            } else {
+              llmAdviceText =
+                  'Não foi possível obter conselho da LLM: ${adviceResponse.statusCode} - ${adviceResponse.body}';
+              print(
+                'Erro ao obter conselho da LLM: ${adviceResponse.statusCode} - ${adviceResponse.body}',
+              );
+            }
+          } on TimeoutException catch (e) {
+            llmAdviceText =
+                'Tempo limite excedido ao obter conselho da LLM: $e';
+            print('Timeout ao obter conselho da LLM: $e');
+          }
+
           if (!mounted) return;
           Navigator.push(
             context,
             MaterialPageRoute(
               builder:
                   (context) => ResultScreen(
-                    predictionResult: predictionValue
+                    predictionResult: predictionValue,
+                    llmAdviceText: llmAdviceText,
                   ),
             ),
           );
           print(
-            ' RESPOSTA DA PREDICAO: ${responsePrediction.body} STATUS ${response.statusCode}',
+            ' RESPOSTA DA PREDICAO: ${responsePrediction.body} STATUS ${responseMedical.statusCode}',
           );
           print("FIM DA API>>>>>>>");
         }
       } else {
         setState(() {
-          final data = jsonDecode(response.body);
+          final data = jsonDecode(responseMedical.body);
           final mensagem = data['messages'];
 
           _predictionResult =
               'Erro ao realizar predição: ${mensagem.toString()}';
         });
-        print('Erro na requisição: ${response.statusCode} - ${response.body}');
+        print(
+          'Erro na requisição: ${responseMedical.statusCode} - ${responseMedical.body}',
+        );
       }
 
-      print(response.body);
+      print(responseMedical.body);
     } catch (e) {
       setState(() {
         _predictionResult = 'Erro de conexão ao enviar predição: $e';
